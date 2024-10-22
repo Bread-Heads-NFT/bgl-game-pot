@@ -1,6 +1,6 @@
-# Mpl Project Name
+# Bgl Game Pot
 
-My project description
+A way to accept and pay out tokens for participation in games.
 
 ## Building
 

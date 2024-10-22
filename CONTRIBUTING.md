@@ -1,6 +1,6 @@
-# Contributing to Mpl Project Name
+# Contributing to Bgl Game Pot
 
-This is a quick guide to help you contribute to Mpl Project Name.
+This is a quick guide to help you contribute to Bgl Game Pot.
 
 ## Getting started
 
