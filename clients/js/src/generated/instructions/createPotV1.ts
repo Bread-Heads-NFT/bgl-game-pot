@@ -7,7 +7,6 @@
  */
 
 import {
-  ACCOUNT_HEADER_SIZE,
   Context,
   Pda,
   PublicKey,
@@ -19,62 +18,69 @@ import {
   Serializer,
   mapSerializer,
   struct,
-  u16,
-  u32,
+  u64,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { getMyAccountSize } from '../accounts';
+import { findGamePotPda } from '../accounts';
 import {
   ResolvedAccount,
   ResolvedAccountsWithIndices,
+  expectPublicKey,
   getAccountMetasAndSigners,
 } from '../shared';
 
 // Accounts.
-export type CreateInstructionAccounts = {
-  /** The address of the new account */
-  address: Signer;
-  /** The authority of the new account */
-  authority?: PublicKey | Pda;
-  /** The account paying for the storage fees */
-  payer?: Signer;
+export type CreatePotV1InstructionAccounts = {
+  /** The address of the new game pot */
+  pot?: PublicKey | Pda;
+  /** The authority of the game pot */
+  gameAuthority: Signer;
+  /** The address of the token mint */
+  tokenMint: PublicKey | Pda;
   /** The system program */
   systemProgram?: PublicKey | Pda;
 };
 
 // Data.
-export type CreateInstructionData = {
+export type CreatePotV1InstructionData = {
   discriminator: number;
-  arg1: number;
-  arg2: number;
+  paymentAmount: bigint;
+  feePercentage: number;
 };
 
-export type CreateInstructionDataArgs = { arg1: number; arg2: number };
+export type CreatePotV1InstructionDataArgs = {
+  paymentAmount: number | bigint;
+  feePercentage: number;
+};
 
-export function getCreateInstructionDataSerializer(): Serializer<
-  CreateInstructionDataArgs,
-  CreateInstructionData
+export function getCreatePotV1InstructionDataSerializer(): Serializer<
+  CreatePotV1InstructionDataArgs,
+  CreatePotV1InstructionData
 > {
-  return mapSerializer<CreateInstructionDataArgs, any, CreateInstructionData>(
-    struct<CreateInstructionData>(
+  return mapSerializer<
+    CreatePotV1InstructionDataArgs,
+    any,
+    CreatePotV1InstructionData
+  >(
+    struct<CreatePotV1InstructionData>(
       [
         ['discriminator', u8()],
-        ['arg1', u16()],
-        ['arg2', u32()],
+        ['paymentAmount', u64()],
+        ['feePercentage', u8()],
       ],
-      { description: 'CreateInstructionData' }
+      { description: 'CreatePotV1InstructionData' }
     ),
     (value) => ({ ...value, discriminator: 0 })
-  ) as Serializer<CreateInstructionDataArgs, CreateInstructionData>;
+  ) as Serializer<CreatePotV1InstructionDataArgs, CreatePotV1InstructionData>;
 }
 
 // Args.
-export type CreateInstructionArgs = CreateInstructionDataArgs;
+export type CreatePotV1InstructionArgs = CreatePotV1InstructionDataArgs;
 
 // Instruction.
-export function create(
-  context: Pick<Context, 'identity' | 'payer' | 'programs'>,
-  input: CreateInstructionAccounts & CreateInstructionArgs
+export function createPotV1(
+  context: Pick<Context, 'eddsa' | 'programs'>,
+  input: CreatePotV1InstructionAccounts & CreatePotV1InstructionArgs
 ): TransactionBuilder {
   // Program ID.
   const programId = context.programs.getPublicKey(
@@ -84,20 +90,16 @@ export function create(
 
   // Accounts.
   const resolvedAccounts = {
-    address: {
-      index: 0,
-      isWritable: true as boolean,
-      value: input.address ?? null,
-    },
-    authority: {
+    pot: { index: 0, isWritable: true as boolean, value: input.pot ?? null },
+    gameAuthority: {
       index: 1,
-      isWritable: false as boolean,
-      value: input.authority ?? null,
-    },
-    payer: {
-      index: 2,
       isWritable: true as boolean,
-      value: input.payer ?? null,
+      value: input.gameAuthority ?? null,
+    },
+    tokenMint: {
+      index: 2,
+      isWritable: false as boolean,
+      value: input.tokenMint ?? null,
     },
     systemProgram: {
       index: 3,
@@ -107,14 +109,14 @@ export function create(
   } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
-  const resolvedArgs: CreateInstructionArgs = { ...input };
+  const resolvedArgs: CreatePotV1InstructionArgs = { ...input };
 
   // Default values.
-  if (!resolvedAccounts.authority.value) {
-    resolvedAccounts.authority.value = context.identity.publicKey;
-  }
-  if (!resolvedAccounts.payer.value) {
-    resolvedAccounts.payer.value = context.payer;
+  if (!resolvedAccounts.pot.value) {
+    resolvedAccounts.pot.value = findGamePotPda(context, {
+      gameAuthority: expectPublicKey(resolvedAccounts.gameAuthority.value),
+      tokenMint: expectPublicKey(resolvedAccounts.tokenMint.value),
+    });
   }
   if (!resolvedAccounts.systemProgram.value) {
     resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
@@ -137,12 +139,12 @@ export function create(
   );
 
   // Data.
-  const data = getCreateInstructionDataSerializer().serialize(
-    resolvedArgs as CreateInstructionDataArgs
+  const data = getCreatePotV1InstructionDataSerializer().serialize(
+    resolvedArgs as CreatePotV1InstructionDataArgs
   );
 
   // Bytes Created On Chain.
-  const bytesCreatedOnChain = getMyAccountSize() + ACCOUNT_HEADER_SIZE;
+  const bytesCreatedOnChain = 0;
 
   return transactionBuilder([
     { instruction: { keys, programId, data }, signers, bytesCreatedOnChain },

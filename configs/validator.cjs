@@ -28,6 +28,11 @@ module.exports = {
         programId: "noopb9bkMVfRPU8AsbpTUg8AQkHtKwMYZiFUjNRtMmV",
         deployPath: getProgram("spl_noop.so"),
       },
+      {
+        label: "Associated Token Program",
+        programId: "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+        deployPath: getProgram("spl_associated_token_account.so"),
+      }
     ],
   },
 };

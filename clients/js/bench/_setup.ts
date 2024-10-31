@@ -3,5 +3,6 @@ import { createUmi as basecreateUmi } from '@metaplex-foundation/umi-bundle-test
 import {
   bglGamePot,
 } from '../src';
+import { mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata';
 
-export const createUmi = async () => (await basecreateUmi()).use(bglGamePot());
+export const createUmi = async () => (await basecreateUmi()).use(bglGamePot()).use(mplTokenMetadata());

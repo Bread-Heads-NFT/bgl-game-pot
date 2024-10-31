@@ -3,30 +3,30 @@
   "name": "bgl_game_pot_program",
   "instructions": [
     {
-      "name": "Create",
+      "name": "CreatePotV1",
       "accounts": [
         {
-          "name": "address",
+          "name": "pot",
           "isMut": true,
-          "isSigner": true,
+          "isSigner": false,
           "docs": [
-            "The address of the new account"
+            "The address of the new game pot"
           ]
         },
         {
-          "name": "authority",
+          "name": "gameAuthority",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The authority of the game pot"
+          ]
+        },
+        {
+          "name": "tokenMint",
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "The authority of the new account"
-          ]
-        },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "The account paying for the storage fees"
+            "The address of the token mint"
           ]
         },
         {
@@ -40,9 +40,9 @@
       ],
       "args": [
         {
-          "name": "createArgs",
+          "name": "createPotV1Args",
           "type": {
-            "defined": "CreateArgs"
+            "defined": "CreatePotV1Args"
           }
         }
       ],
@@ -50,11 +50,319 @@
         "type": "u8",
         "value": 0
       }
+    },
+    {
+      "name": "ClosePotV1",
+      "accounts": [
+        {
+          "name": "pot",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The address of the game pot"
+          ]
+        },
+        {
+          "name": "gameAuthority",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The authority of the game pot"
+          ]
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 1
+      }
+    },
+    {
+      "name": "PopParticipantV1",
+      "accounts": [
+        {
+          "name": "pot",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The address of the game pot"
+          ]
+        },
+        {
+          "name": "gameAuthority",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The authority of the game pot"
+          ]
+        },
+        {
+          "name": "participant",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The participant to remove from the allowlist"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The system program"
+          ]
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 2
+      }
+    },
+    {
+      "name": "PayInSolV1",
+      "accounts": [
+        {
+          "name": "pot",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The address of the game pot"
+          ]
+        },
+        {
+          "name": "participant",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The participant"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The system program"
+          ]
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 3
+      }
+    },
+    {
+      "name": "PayOutSolV1",
+      "accounts": [
+        {
+          "name": "pot",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The address of the game pot"
+          ]
+        },
+        {
+          "name": "gameAuthority",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The authority of the game pot"
+          ]
+        },
+        {
+          "name": "winner",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The account receiving the payout"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The system program"
+          ]
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 4
+      }
+    },
+    {
+      "name": "PayInSplTokenV1",
+      "accounts": [
+        {
+          "name": "pot",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The address of the game pot"
+          ]
+        },
+        {
+          "name": "participant",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The participant"
+          ]
+        },
+        {
+          "name": "tokenMint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The address of the token mint"
+          ]
+        },
+        {
+          "name": "participantTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The source token account"
+          ]
+        },
+        {
+          "name": "potTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The destination token account"
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The token program"
+          ]
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The associated token program"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The system program"
+          ]
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 5
+      }
+    },
+    {
+      "name": "PayOutSplTokenV1",
+      "accounts": [
+        {
+          "name": "pot",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The address of the game pot"
+          ]
+        },
+        {
+          "name": "gameAuthority",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The authority of the game pot"
+          ]
+        },
+        {
+          "name": "winner",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The account receiving the payout"
+          ]
+        },
+        {
+          "name": "tokenMint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The address of the token mint"
+          ]
+        },
+        {
+          "name": "potTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The source token account"
+          ]
+        },
+        {
+          "name": "winnerTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The destination token account"
+          ]
+        },
+        {
+          "name": "gameAuthorityTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The token account of the game authority"
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The token program"
+          ]
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The associated token program"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The system program"
+          ]
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 6
+      }
     }
   ],
   "accounts": [
     {
-      "name": "MyAccount",
+      "name": "GamePot",
       "type": {
         "kind": "struct",
         "fields": [
@@ -69,28 +377,30 @@
             "type": "publicKey"
           },
           {
-            "name": "data",
-            "type": {
-              "defined": "MyData"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "MyPdaAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "key",
-            "type": {
-              "defined": "Key"
-            }
+            "name": "tokenMint",
+            "type": "publicKey"
           },
           {
             "name": "bump",
             "type": "u8"
+          },
+          {
+            "name": "paymentAmount",
+            "type": "u64"
+          },
+          {
+            "name": "balance",
+            "type": "u64"
+          },
+          {
+            "name": "feePercentage",
+            "type": "u8"
+          },
+          {
+            "name": "allowlist",
+            "type": {
+              "vec": "publicKey"
+            }
           }
         ]
       }
@@ -98,33 +408,17 @@
   ],
   "types": [
     {
-      "name": "CreateArgs",
+      "name": "CreatePotV1Args",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "arg1",
-            "type": "u16"
+            "name": "paymentAmount",
+            "type": "u64"
           },
           {
-            "name": "arg2",
-            "type": "u32"
-          }
-        ]
-      }
-    },
-    {
-      "name": "MyData",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "field1",
-            "type": "u16"
-          },
-          {
-            "name": "field2",
-            "type": "u32"
+            "name": "feePercentage",
+            "type": "u8"
           }
         ]
       }
@@ -138,10 +432,7 @@
             "name": "Uninitialized"
           },
           {
-            "name": "MyAccount"
-          },
-          {
-            "name": "MyPdaAccount"
+            "name": "GamePot"
           }
         ]
       }
@@ -162,6 +453,61 @@
       "code": 2,
       "name": "SerializationError",
       "msg": "Error serializing account"
+    },
+    {
+      "code": 3,
+      "name": "InvalidAuthority",
+      "msg": "Invalid Authority"
+    },
+    {
+      "code": 4,
+      "name": "PotNotEmpty",
+      "msg": "Pot Not Empty"
+    },
+    {
+      "code": 5,
+      "name": "InvalidTokenProgram",
+      "msg": "Invalid Token Program"
+    },
+    {
+      "code": 6,
+      "name": "InvalidTokenMint",
+      "msg": "Invalid Token Mint"
+    },
+    {
+      "code": 7,
+      "name": "InvalidDerivationForPotAccount",
+      "msg": "Invalid Derivation For Pot Account"
+    },
+    {
+      "code": 8,
+      "name": "InvalidAssociatedTokenProgram",
+      "msg": "Invalid Associated Token Program"
+    },
+    {
+      "code": 9,
+      "name": "InvalidAccountOwner",
+      "msg": "Invalid Account Owner"
+    },
+    {
+      "code": 10,
+      "name": "InvalidTokenMintForTokenAccount",
+      "msg": "Invalid Token Mint for Token Account"
+    },
+    {
+      "code": 11,
+      "name": "InvalidTokenAccountOwner",
+      "msg": "Invalid Token Account Owner"
+    },
+    {
+      "code": 12,
+      "name": "ParticipantNotInAllowlist",
+      "msg": "Participant Not In Allowlist"
+    },
+    {
+      "code": 13,
+      "name": "InvalidPaymentType",
+      "msg": "Invalid Payment Type"
     }
   ],
   "metadata": {

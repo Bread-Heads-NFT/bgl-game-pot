@@ -9,50 +9,44 @@ use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
 /// Accounts.
-pub struct Create {
-    /// The address of the new account
-    pub address: solana_program::pubkey::Pubkey,
-    /// The authority of the new account
-    pub authority: solana_program::pubkey::Pubkey,
-    /// The account paying for the storage fees
-    pub payer: solana_program::pubkey::Pubkey,
+pub struct PayOutSolV1 {
+    /// The address of the game pot
+    pub pot: solana_program::pubkey::Pubkey,
+    /// The authority of the game pot
+    pub game_authority: solana_program::pubkey::Pubkey,
+    /// The account receiving the payout
+    pub winner: solana_program::pubkey::Pubkey,
     /// The system program
     pub system_program: solana_program::pubkey::Pubkey,
 }
 
-impl Create {
-    pub fn instruction(
-        &self,
-        args: CreateInstructionArgs,
-    ) -> solana_program::instruction::Instruction {
-        self.instruction_with_remaining_accounts(args, &[])
+impl PayOutSolV1 {
+    pub fn instruction(&self) -> solana_program::instruction::Instruction {
+        self.instruction_with_remaining_accounts(&[])
     }
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction_with_remaining_accounts(
         &self,
-        args: CreateInstructionArgs,
         remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
         let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
-            self.address,
-            true,
-        ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.authority,
-            false,
+            self.pot, false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
-            self.payer, true,
+            self.game_authority,
+            true,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            self.winner,
+            false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.system_program,
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = CreateInstructionData::new().try_to_vec().unwrap();
-        let mut args = args.try_to_vec().unwrap();
-        data.append(&mut args);
+        let data = PayOutSolV1InstructionData::new().try_to_vec().unwrap();
 
         solana_program::instruction::Instruction {
             program_id: crate::BGL_GAME_POT_ID,
@@ -63,62 +57,53 @@ impl Create {
 }
 
 #[derive(BorshDeserialize, BorshSerialize)]
-struct CreateInstructionData {
+struct PayOutSolV1InstructionData {
     discriminator: u8,
 }
 
-impl CreateInstructionData {
+impl PayOutSolV1InstructionData {
     fn new() -> Self {
-        Self { discriminator: 0 }
+        Self { discriminator: 4 }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateInstructionArgs {
-    pub arg1: u16,
-    pub arg2: u32,
-}
-
-/// Instruction builder for `Create`.
+/// Instruction builder for `PayOutSolV1`.
 ///
 /// ### Accounts:
 ///
-///   0. `[writable, signer]` address
-///   1. `[]` authority
-///   2. `[writable, signer]` payer
+///   0. `[writable]` pot
+///   1. `[writable, signer]` game_authority
+///   2. `[writable]` winner
 ///   3. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Default)]
-pub struct CreateBuilder {
-    address: Option<solana_program::pubkey::Pubkey>,
-    authority: Option<solana_program::pubkey::Pubkey>,
-    payer: Option<solana_program::pubkey::Pubkey>,
+pub struct PayOutSolV1Builder {
+    pot: Option<solana_program::pubkey::Pubkey>,
+    game_authority: Option<solana_program::pubkey::Pubkey>,
+    winner: Option<solana_program::pubkey::Pubkey>,
     system_program: Option<solana_program::pubkey::Pubkey>,
-    arg1: Option<u16>,
-    arg2: Option<u32>,
     __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
-impl CreateBuilder {
+impl PayOutSolV1Builder {
     pub fn new() -> Self {
         Self::default()
     }
-    /// The address of the new account
+    /// The address of the game pot
     #[inline(always)]
-    pub fn address(&mut self, address: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.address = Some(address);
+    pub fn pot(&mut self, pot: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.pot = Some(pot);
         self
     }
-    /// The authority of the new account
+    /// The authority of the game pot
     #[inline(always)]
-    pub fn authority(&mut self, authority: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.authority = Some(authority);
+    pub fn game_authority(&mut self, game_authority: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.game_authority = Some(game_authority);
         self
     }
-    /// The account paying for the storage fees
+    /// The account receiving the payout
     #[inline(always)]
-    pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.payer = Some(payer);
+    pub fn winner(&mut self, winner: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.winner = Some(winner);
         self
     }
     /// `[optional account, default to '11111111111111111111111111111111']`
@@ -126,16 +111,6 @@ impl CreateBuilder {
     #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
-        self
-    }
-    #[inline(always)]
-    pub fn arg1(&mut self, arg1: u16) -> &mut Self {
-        self.arg1 = Some(arg1);
-        self
-    }
-    #[inline(always)]
-    pub fn arg2(&mut self, arg2: u32) -> &mut Self {
-        self.arg2 = Some(arg2);
         self
     }
     /// Add an aditional account to the instruction.
@@ -158,64 +133,56 @@ impl CreateBuilder {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let accounts = Create {
-            address: self.address.expect("address is not set"),
-            authority: self.authority.expect("authority is not set"),
-            payer: self.payer.expect("payer is not set"),
+        let accounts = PayOutSolV1 {
+            pot: self.pot.expect("pot is not set"),
+            game_authority: self.game_authority.expect("game_authority is not set"),
+            winner: self.winner.expect("winner is not set"),
             system_program: self
                 .system_program
                 .unwrap_or(solana_program::pubkey!("11111111111111111111111111111111")),
         };
-        let args = CreateInstructionArgs {
-            arg1: self.arg1.clone().expect("arg1 is not set"),
-            arg2: self.arg2.clone().expect("arg2 is not set"),
-        };
 
-        accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
+        accounts.instruction_with_remaining_accounts(&self.__remaining_accounts)
     }
 }
 
-/// `create` CPI accounts.
-pub struct CreateCpiAccounts<'a, 'b> {
-    /// The address of the new account
-    pub address: &'b solana_program::account_info::AccountInfo<'a>,
-    /// The authority of the new account
-    pub authority: &'b solana_program::account_info::AccountInfo<'a>,
-    /// The account paying for the storage fees
-    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
+/// `pay_out_sol_v1` CPI accounts.
+pub struct PayOutSolV1CpiAccounts<'a, 'b> {
+    /// The address of the game pot
+    pub pot: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The authority of the game pot
+    pub game_authority: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The account receiving the payout
+    pub winner: &'b solana_program::account_info::AccountInfo<'a>,
     /// The system program
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
-/// `create` CPI instruction.
-pub struct CreateCpi<'a, 'b> {
+/// `pay_out_sol_v1` CPI instruction.
+pub struct PayOutSolV1Cpi<'a, 'b> {
     /// The program to invoke.
     pub __program: &'b solana_program::account_info::AccountInfo<'a>,
-    /// The address of the new account
-    pub address: &'b solana_program::account_info::AccountInfo<'a>,
-    /// The authority of the new account
-    pub authority: &'b solana_program::account_info::AccountInfo<'a>,
-    /// The account paying for the storage fees
-    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The address of the game pot
+    pub pot: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The authority of the game pot
+    pub game_authority: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The account receiving the payout
+    pub winner: &'b solana_program::account_info::AccountInfo<'a>,
     /// The system program
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
-    /// The arguments for the instruction.
-    pub __args: CreateInstructionArgs,
 }
 
-impl<'a, 'b> CreateCpi<'a, 'b> {
+impl<'a, 'b> PayOutSolV1Cpi<'a, 'b> {
     pub fn new(
         program: &'b solana_program::account_info::AccountInfo<'a>,
-        accounts: CreateCpiAccounts<'a, 'b>,
-        args: CreateInstructionArgs,
+        accounts: PayOutSolV1CpiAccounts<'a, 'b>,
     ) -> Self {
         Self {
             __program: program,
-            address: accounts.address,
-            authority: accounts.authority,
-            payer: accounts.payer,
+            pot: accounts.pot,
+            game_authority: accounts.game_authority,
+            winner: accounts.winner,
             system_program: accounts.system_program,
-            __args: args,
         }
     }
     #[inline(always)]
@@ -253,16 +220,16 @@ impl<'a, 'b> CreateCpi<'a, 'b> {
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
-            *self.address.key,
-            true,
-        ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.authority.key,
+            *self.pot.key,
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
-            *self.payer.key,
+            *self.game_authority.key,
             true,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            *self.winner.key,
+            false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.system_program.key,
@@ -275,9 +242,7 @@ impl<'a, 'b> CreateCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = CreateInstructionData::new().try_to_vec().unwrap();
-        let mut args = self.__args.try_to_vec().unwrap();
-        data.append(&mut args);
+        let data = PayOutSolV1InstructionData::new().try_to_vec().unwrap();
 
         let instruction = solana_program::instruction::Instruction {
             program_id: crate::BGL_GAME_POT_ID,
@@ -286,9 +251,9 @@ impl<'a, 'b> CreateCpi<'a, 'b> {
         };
         let mut account_infos = Vec::with_capacity(4 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
-        account_infos.push(self.address.clone());
-        account_infos.push(self.authority.clone());
-        account_infos.push(self.payer.clone());
+        account_infos.push(self.pot.clone());
+        account_infos.push(self.game_authority.clone());
+        account_infos.push(self.winner.clone());
         account_infos.push(self.system_program.clone());
         remaining_accounts
             .iter()
@@ -302,54 +267,52 @@ impl<'a, 'b> CreateCpi<'a, 'b> {
     }
 }
 
-/// Instruction builder for `Create` via CPI.
+/// Instruction builder for `PayOutSolV1` via CPI.
 ///
 /// ### Accounts:
 ///
-///   0. `[writable, signer]` address
-///   1. `[]` authority
-///   2. `[writable, signer]` payer
+///   0. `[writable]` pot
+///   1. `[writable, signer]` game_authority
+///   2. `[writable]` winner
 ///   3. `[]` system_program
-pub struct CreateCpiBuilder<'a, 'b> {
-    instruction: Box<CreateCpiBuilderInstruction<'a, 'b>>,
+pub struct PayOutSolV1CpiBuilder<'a, 'b> {
+    instruction: Box<PayOutSolV1CpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a, 'b> CreateCpiBuilder<'a, 'b> {
+impl<'a, 'b> PayOutSolV1CpiBuilder<'a, 'b> {
     pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
-        let instruction = Box::new(CreateCpiBuilderInstruction {
+        let instruction = Box::new(PayOutSolV1CpiBuilderInstruction {
             __program: program,
-            address: None,
-            authority: None,
-            payer: None,
+            pot: None,
+            game_authority: None,
+            winner: None,
             system_program: None,
-            arg1: None,
-            arg2: None,
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
-    /// The address of the new account
+    /// The address of the game pot
     #[inline(always)]
-    pub fn address(
-        &mut self,
-        address: &'b solana_program::account_info::AccountInfo<'a>,
-    ) -> &mut Self {
-        self.instruction.address = Some(address);
+    pub fn pot(&mut self, pot: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+        self.instruction.pot = Some(pot);
         self
     }
-    /// The authority of the new account
+    /// The authority of the game pot
     #[inline(always)]
-    pub fn authority(
+    pub fn game_authority(
         &mut self,
-        authority: &'b solana_program::account_info::AccountInfo<'a>,
+        game_authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
-        self.instruction.authority = Some(authority);
+        self.instruction.game_authority = Some(game_authority);
         self
     }
-    /// The account paying for the storage fees
+    /// The account receiving the payout
     #[inline(always)]
-    pub fn payer(&mut self, payer: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
-        self.instruction.payer = Some(payer);
+    pub fn winner(
+        &mut self,
+        winner: &'b solana_program::account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.winner = Some(winner);
         self
     }
     /// The system program
@@ -359,16 +322,6 @@ impl<'a, 'b> CreateCpiBuilder<'a, 'b> {
         system_program: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.system_program = Some(system_program);
-        self
-    }
-    #[inline(always)]
-    pub fn arg1(&mut self, arg1: u16) -> &mut Self {
-        self.instruction.arg1 = Some(arg1);
-        self
-    }
-    #[inline(always)]
-    pub fn arg2(&mut self, arg2: u32) -> &mut Self {
-        self.instruction.arg2 = Some(arg2);
         self
     }
     /// Add an additional account to the instruction.
@@ -412,24 +365,22 @@ impl<'a, 'b> CreateCpiBuilder<'a, 'b> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = CreateInstructionArgs {
-            arg1: self.instruction.arg1.clone().expect("arg1 is not set"),
-            arg2: self.instruction.arg2.clone().expect("arg2 is not set"),
-        };
-        let instruction = CreateCpi {
+        let instruction = PayOutSolV1Cpi {
             __program: self.instruction.__program,
 
-            address: self.instruction.address.expect("address is not set"),
+            pot: self.instruction.pot.expect("pot is not set"),
 
-            authority: self.instruction.authority.expect("authority is not set"),
+            game_authority: self
+                .instruction
+                .game_authority
+                .expect("game_authority is not set"),
 
-            payer: self.instruction.payer.expect("payer is not set"),
+            winner: self.instruction.winner.expect("winner is not set"),
 
             system_program: self
                 .instruction
                 .system_program
                 .expect("system_program is not set"),
-            __args: args,
         };
         instruction.invoke_signed_with_remaining_accounts(
             signers_seeds,
@@ -438,14 +389,12 @@ impl<'a, 'b> CreateCpiBuilder<'a, 'b> {
     }
 }
 
-struct CreateCpiBuilderInstruction<'a, 'b> {
+struct PayOutSolV1CpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_program::account_info::AccountInfo<'a>,
-    address: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    pot: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    game_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    winner: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    arg1: Option<u16>,
-    arg2: Option<u32>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(
         &'b solana_program::account_info::AccountInfo<'a>,

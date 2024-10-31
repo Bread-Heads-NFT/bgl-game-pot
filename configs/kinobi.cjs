@@ -18,24 +18,49 @@ kinobi.update(
 // Update accounts.
 kinobi.update(
   new k.updateAccountsVisitor({
-    myPdaAccount: {
+    gamePot: {
       seeds: [
-        k.constantPdaSeedNodeFromString("myPdaAccount"),
-        k.programIdPdaSeedNode(),
-        k.variablePdaSeedNode("authority", k.publicKeyTypeNode(), "The address of the authority"),
-        k.variablePdaSeedNode("name", k.stringTypeNode(), "The name of the account"),
+        k.constantPdaSeedNodeFromString("pot"),
+        k.variablePdaSeedNode("gameAuthority", k.publicKeyTypeNode(), "The address of the game authority"),
+        k.variablePdaSeedNode("tokenMint", k.publicKeyTypeNode(), "The address of the token mint"),
       ],
     },
-  })
+  }),
 );
+
+kinobi.update(
+  k.setInstructionAccountDefaultValuesVisitor([
+    {
+      account: "pot",
+      defaultValue: k.pdaValueNode("gamePot"),
+    },
+  ])
+);
+
+// ATA PDA default.
+const ataPdaDefault = (mint = "mint", owner = "owner") =>
+  k.pdaValueNode(k.pdaLinkNode("associatedToken", "mplToolbox"), [
+    k.pdaSeedValueNode("mint", k.accountValueNode(mint)),
+    k.pdaSeedValueNode("owner", k.accountValueNode(owner))
+  ]);
 
 // Update instructions.
 kinobi.update(
-  new k.updateInstructionsVisitor({
-    create: {
-      byteDeltas: [
-        k.instructionByteDeltaNode(k.accountLinkNode("myAccount")),
-      ],
+  k.updateInstructionsVisitor({
+    payInSplTokenV1: {
+      accounts: {
+        participantTokenAccount: { defaultValue: ataPdaDefault("tokenMint", "participant") },
+        potTokenAccount: { defaultValue: ataPdaDefault("tokenMint", "pot") },
+        associatedTokenProgram: { defaultValue: k.publicKeyValueNode("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL") },
+      },
+    },
+    payOutSplTokenV1: {
+      accounts: {
+        winnerTokenAccount: { defaultValue: ataPdaDefault("tokenMint", "winner") },
+        gameAuthorityTokenAccount: { defaultValue: ataPdaDefault("tokenMint", "gameAuthority") },
+        potTokenAccount: { defaultValue: ataPdaDefault("tokenMint", "pot") },
+        associatedTokenProgram: { defaultValue: k.publicKeyValueNode("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL") },
+      },
     },
   })
 );
@@ -44,8 +69,7 @@ kinobi.update(
 const key = (name) => ({ field: "key", value: k.enumValueNode("Key", name) });
 kinobi.update(
   new k.setAccountDiscriminatorFromFieldVisitor({
-    myAccount: key("MyAccount"),
-    myPdaAccount: key("MyPdaAccount"),
+    gamePot: key("GamePot"),
   })
 );
 

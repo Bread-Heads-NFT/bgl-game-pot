@@ -12,48 +12,60 @@ use solana_program::pubkey::Pubkey;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct MyPdaAccount {
+pub struct GamePot {
     pub key: Key,
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
+    pub authority: Pubkey,
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
+    pub token_mint: Pubkey,
     pub bump: u8,
+    pub payment_amount: u64,
+    pub balance: u64,
+    pub fee_percentage: u8,
+    pub allowlist: Vec<Pubkey>,
 }
 
-impl MyPdaAccount {
-    pub const LEN: usize = 2;
-
+impl GamePot {
     /// Prefix values used to generate a PDA for this account.
     ///
     /// Values are positional and appear in the following order:
     ///
-    ///   0. `MyPdaAccount::PREFIX`
-    ///   1. `crate::BGL_GAME_POT_ID`
-    ///   2. authority (`Pubkey`)
-    ///   3. name (`String`)
-    pub const PREFIX: &'static [u8] = "myPdaAccount".as_bytes();
+    ///   0. `GamePot::PREFIX`
+    ///   1. game_authority (`Pubkey`)
+    ///   2. token_mint (`Pubkey`)
+    pub const PREFIX: &'static [u8] = "pot".as_bytes();
 
     pub fn create_pda(
-        authority: Pubkey,
-        name: String,
+        game_authority: Pubkey,
+        token_mint: Pubkey,
         bump: u8,
     ) -> Result<solana_program::pubkey::Pubkey, solana_program::pubkey::PubkeyError> {
         solana_program::pubkey::Pubkey::create_program_address(
             &[
-                "myPdaAccount".as_bytes(),
-                crate::BGL_GAME_POT_ID.as_ref(),
-                authority.as_ref(),
-                name.to_string().as_ref(),
+                "pot".as_bytes(),
+                game_authority.as_ref(),
+                token_mint.as_ref(),
                 &[bump],
             ],
             &crate::BGL_GAME_POT_ID,
         )
     }
 
-    pub fn find_pda(authority: &Pubkey, name: String) -> (solana_program::pubkey::Pubkey, u8) {
+    pub fn find_pda(
+        game_authority: &Pubkey,
+        token_mint: &Pubkey,
+    ) -> (solana_program::pubkey::Pubkey, u8) {
         solana_program::pubkey::Pubkey::find_program_address(
             &[
-                "myPdaAccount".as_bytes(),
-                crate::BGL_GAME_POT_ID.as_ref(),
-                authority.as_ref(),
-                name.to_string().as_ref(),
+                "pot".as_bytes(),
+                game_authority.as_ref(),
+                token_mint.as_ref(),
             ],
             &crate::BGL_GAME_POT_ID,
         )
@@ -66,7 +78,7 @@ impl MyPdaAccount {
     }
 }
 
-impl<'a> TryFrom<&solana_program::account_info::AccountInfo<'a>> for MyPdaAccount {
+impl<'a> TryFrom<&solana_program::account_info::AccountInfo<'a>> for GamePot {
     type Error = std::io::Error;
 
     fn try_from(

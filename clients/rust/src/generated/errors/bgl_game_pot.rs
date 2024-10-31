@@ -19,6 +19,39 @@ pub enum BglGamePotError {
     /// 2 (0x2) - Error serializing account
     #[error("Error serializing account")]
     SerializationError,
+    /// 3 (0x3) - Invalid Authority
+    #[error("Invalid Authority")]
+    InvalidAuthority,
+    /// 4 (0x4) - Pot Not Empty
+    #[error("Pot Not Empty")]
+    PotNotEmpty,
+    /// 5 (0x5) - Invalid Token Program
+    #[error("Invalid Token Program")]
+    InvalidTokenProgram,
+    /// 6 (0x6) - Invalid Token Mint
+    #[error("Invalid Token Mint")]
+    InvalidTokenMint,
+    /// 7 (0x7) - Invalid Derivation For Pot Account
+    #[error("Invalid Derivation For Pot Account")]
+    InvalidDerivationForPotAccount,
+    /// 8 (0x8) - Invalid Associated Token Program
+    #[error("Invalid Associated Token Program")]
+    InvalidAssociatedTokenProgram,
+    /// 9 (0x9) - Invalid Account Owner
+    #[error("Invalid Account Owner")]
+    InvalidAccountOwner,
+    /// 10 (0xA) - Invalid Token Mint for Token Account
+    #[error("Invalid Token Mint for Token Account")]
+    InvalidTokenMintForTokenAccount,
+    /// 11 (0xB) - Invalid Token Account Owner
+    #[error("Invalid Token Account Owner")]
+    InvalidTokenAccountOwner,
+    /// 12 (0xC) - Participant Not In Allowlist
+    #[error("Participant Not In Allowlist")]
+    ParticipantNotInAllowlist,
+    /// 13 (0xD) - Invalid Payment Type
+    #[error("Invalid Payment Type")]
+    InvalidPaymentType,
 }
 
 impl solana_program::program_error::PrintProgramError for BglGamePotError {

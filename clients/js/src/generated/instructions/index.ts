@@ -6,4 +6,10 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-export * from './create';
+export * from './closePotV1';
+export * from './createPotV1';
+export * from './payInSolV1';
+export * from './payInSplTokenV1';
+export * from './payOutSolV1';
+export * from './payOutSplTokenV1';
+export * from './popParticipantV1';

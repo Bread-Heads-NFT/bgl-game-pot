@@ -1,14 +1,15 @@
 lockfileVersion: '6.0'
 
-dependencies:
-  '@metaplex-foundation/mpl-toolbox':
-    specifier: ^0.8.0
-    version: 0.8.0(@metaplex-foundation/umi@0.8.2)
-
 devDependencies:
   '@ava/typescript':
     specifier: ^3.0.1
     version: 3.0.1
+  '@metaplex-foundation/mpl-token-metadata':
+    specifier: ^3.2.1
+    version: 3.2.1(@metaplex-foundation/umi@0.8.2)
+  '@metaplex-foundation/mpl-toolbox':
+    specifier: ^0.9.4
+    version: 0.9.4(@metaplex-foundation/umi@0.8.2)
   '@metaplex-foundation/umi':
     specifier: ^0.8.2
     version: 0.8.2
@@ -1618,13 +1619,22 @@ packages:
       - supports-color
     dev: true
 
-  /@metaplex-foundation/mpl-toolbox@0.8.0(@metaplex-foundation/umi@0.8.2):
-    resolution: {integrity: sha512-SK1VUPU4hCaL3sozgtoVjjbZxqx2gWiRt0YTFbwEt5LAHWOlCb7J7rcrrA5XwymX4iV2bIWygYs0yz7hYyx2rg==}
+  /@metaplex-foundation/mpl-token-metadata@3.2.1(@metaplex-foundation/umi@0.8.2):
+    resolution: {integrity: sha512-26W1NhQwDWmLOg/pBRYut7x/vEs/5kFS2sWVEY5/X0f2jJOLhnd4NaZQcq+5u+XZsXvm1jq2AtrRGPNK43oqWQ==}
     peerDependencies:
-      '@metaplex-foundation/umi': ^0.8.2
+      '@metaplex-foundation/umi': '>= 0.8.2 < 1'
+    dependencies:
+      '@metaplex-foundation/mpl-toolbox': 0.9.4(@metaplex-foundation/umi@0.8.2)
+      '@metaplex-foundation/umi': 0.8.2
+    dev: true
+
+  /@metaplex-foundation/mpl-toolbox@0.9.4(@metaplex-foundation/umi@0.8.2):
+    resolution: {integrity: sha512-fd6JxfoLbj/MM8FG2x91KYVy1U6AjBQw4qjt7+Da3trzQaWnSaYHDcYRG/53xqfvZ9qofY1T2t53GXPlD87lnQ==}
+    peerDependencies:
+      '@metaplex-foundation/umi': '>= 0.8.2 < 1'
     dependencies:
       '@metaplex-foundation/umi': 0.8.2
-    dev: false
+    dev: true
 
   /@metaplex-foundation/umi-bundle-tests@0.8.2(@metaplex-foundation/umi@0.8.2)(@solana/web3.js@1.73.0):
     resolution: {integrity: sha512-FO8rXJw3ZBKE8YHW+4zOodJmB+Lh50kCMtAA+DfZ9x6JKKMtk1kbmz2186Gclrx3/bl7Ep5FwokSAmoBiOys0A==}
@@ -1670,6 +1680,7 @@ packages:
 
   /@metaplex-foundation/umi-options@0.8.2:
     resolution: {integrity: sha512-xFoViuyVHZ1xtZjd7r6AieecfoRbx9bEwlUByqqWs8tmeA1MZb8bg/neO3vUN4aB3DbWxUbJZTEHZrq8fUP1AA==}
+    dev: true
 
   /@metaplex-foundation/umi-program-repository@0.8.2(@metaplex-foundation/umi@0.8.2):
     resolution: {integrity: sha512-2o/icihbnMOgBUXvLvWTSz3aHTvWMj3jrbh6WIsWOkvN8Synjt7isHJK0h97ao0hlTCfxY5QGuM3CmBuP7HgJQ==}
@@ -1683,6 +1694,7 @@ packages:
     resolution: {integrity: sha512-66ZXWJAFtdfc228q61fPtdi5o3ILqinhdf84rT2lYy21SzoLNcveqm4sbp5pDJ482hBU6xAs8W6xeGpzTTBRDw==}
     dependencies:
       '@metaplex-foundation/umi-serializers-encodings': 0.8.2
+    dev: true
 
   /@metaplex-foundation/umi-rpc-web3js@0.8.2(@metaplex-foundation/umi@0.8.2)(@solana/web3.js@1.73.0):
     resolution: {integrity: sha512-PGOtG685xzIrPhd8zTsEqgOT1Cay1SOEnRbc0ZCd6j0wveOo+1R2/G0t0w6mRvpy6kMWUvgYbKHes9UfOEXaGg==}
@@ -1705,16 +1717,19 @@ packages:
 
   /@metaplex-foundation/umi-serializers-core@0.8.2:
     resolution: {integrity: sha512-grncCh1iyMmoWuFowulLMaoQOdetnVVa+m7CXXxEQ340ygnH3ls8WWBHHnP338309DCsRN2J+pPbqwkOHF/3yA==}
+    dev: true
 
   /@metaplex-foundation/umi-serializers-encodings@0.8.2:
     resolution: {integrity: sha512-Em9oxKSHlY30upbQ40V5zV82+gIfKqYpcGkoHAM5ensDx6G0JKLthooazLdSp1hHOP5QfwOpL+Srj76MXyoq4Q==}
     dependencies:
       '@metaplex-foundation/umi-serializers-core': 0.8.2
+    dev: true
 
   /@metaplex-foundation/umi-serializers-numbers@0.8.2:
     resolution: {integrity: sha512-STQEKGjkFXmG5okZHw9z3mXpHGf6SAcH5xr0K49mb5NIOY9icW9YZEVaccIhUpwYykMXgUI3IEetR2Rmrvhs0Q==}
     dependencies:
       '@metaplex-foundation/umi-serializers-core': 0.8.2
+    dev: true
 
   /@metaplex-foundation/umi-serializers@0.8.2:
     resolution: {integrity: sha512-N+BCKGb2RnLWvNHY+U3B9dfZUATDLWHp9/5ufJLqGDY1uFS84aTmSPGb3/lOisdtHG6//t6IBY9cprnEOP0l8g==}
@@ -1724,6 +1739,7 @@ packages:
       '@metaplex-foundation/umi-serializers-core': 0.8.2
       '@metaplex-foundation/umi-serializers-encodings': 0.8.2
       '@metaplex-foundation/umi-serializers-numbers': 0.8.2
+    dev: true
 
   /@metaplex-foundation/umi-storage-mock@0.8.2(@metaplex-foundation/umi@0.8.2):
     resolution: {integrity: sha512-a/iBeDt2Q/fVWk2uZd+hQHZN44Kh0qPaT+MAU5GPosSJ7xf1xPVyUxUjjtHplAH0c24VO6tkNIfa68qQdgR1fg==}
@@ -1761,6 +1777,7 @@ packages:
       '@metaplex-foundation/umi-options': 0.8.2
       '@metaplex-foundation/umi-public-keys': 0.8.2
       '@metaplex-foundation/umi-serializers': 0.8.2
+    dev: true
 
   /@noble/curves@1.1.0:
     resolution: {integrity: sha512-091oBExgENk/kGj3AZmtBDMpxQPDtxQABR2B9lb1JbVTs6ytdzZNwvhxQ4MWasRNEzlbEH8jCWFCwhF/Obj5AA==}
