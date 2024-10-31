@@ -1,5 +1,5 @@
 {
-  "name": "@metaplex-foundation/bgl-game-pot",
+  "name": "@breadheads/bgl-game-pot",
   "version": "0.1.0",
   "description": "A way to accept and pay out tokens for participation in games.",
   "main": "dist/src/index.js",
