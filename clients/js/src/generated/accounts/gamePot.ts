@@ -39,7 +39,6 @@ export type GamePotAccountData = {
   tokenMint: PublicKey;
   bump: number;
   paymentAmount: bigint;
-  balance: bigint;
   feePercentage: number;
   allowlist: Array<PublicKey>;
 };
@@ -49,7 +48,6 @@ export type GamePotAccountDataArgs = {
   tokenMint: PublicKey;
   bump: number;
   paymentAmount: number | bigint;
-  balance: number | bigint;
   feePercentage: number;
   allowlist: Array<PublicKey>;
 };
@@ -66,7 +64,6 @@ export function getGamePotAccountDataSerializer(): Serializer<
         ['tokenMint', publicKeySerializer()],
         ['bump', u8()],
         ['paymentAmount', u64()],
-        ['balance', u64()],
         ['feePercentage', u8()],
         ['allowlist', array(publicKeySerializer())],
       ],
@@ -148,7 +145,6 @@ export function getGamePotGpaBuilder(
       tokenMint: PublicKey;
       bump: number;
       paymentAmount: number | bigint;
-      balance: number | bigint;
       feePercentage: number;
       allowlist: Array<PublicKey>;
     }>({
@@ -157,9 +153,8 @@ export function getGamePotGpaBuilder(
       tokenMint: [33, publicKeySerializer()],
       bump: [65, u8()],
       paymentAmount: [66, u64()],
-      balance: [74, u64()],
-      feePercentage: [82, u8()],
-      allowlist: [83, array(publicKeySerializer())],
+      feePercentage: [74, u8()],
+      allowlist: [75, array(publicKeySerializer())],
     })
     .deserializeUsing<GamePot>((account) => deserializeGamePot(account))
     .whereField('key', Key.GamePot);

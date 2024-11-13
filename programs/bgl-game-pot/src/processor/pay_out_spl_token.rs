@@ -163,8 +163,8 @@ pub fn pay_out_spl_token<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
         return Err(BglGamePotError::InvalidSystemProgram.into());
     }
 
-    let fee_amount = game_pot.balance * (game_pot.fee_percentage / 100u8) as u64;
-    let winner_amount = game_pot.balance - fee_amount;
+    let fee_amount = pot_token_account.amount * (game_pot.fee_percentage / 100u8) as u64;
+    let winner_amount = pot_token_account.amount - fee_amount;
 
     // Transfer the fee to the game authority.
     invoke_signed(
@@ -212,7 +212,6 @@ pub fn pay_out_spl_token<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
         ]],
     )?;
 
-    game_pot.balance = 0;
     game_pot.allowlist = vec![];
 
     resize_with_offset(

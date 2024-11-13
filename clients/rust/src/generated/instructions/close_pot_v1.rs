@@ -14,6 +14,8 @@ pub struct ClosePotV1 {
     pub pot: solana_program::pubkey::Pubkey,
     /// The authority of the game pot
     pub game_authority: solana_program::pubkey::Pubkey,
+    /// The destination token account
+    pub pot_token_account: Option<solana_program::pubkey::Pubkey>,
 }
 
 impl ClosePotV1 {
@@ -25,7 +27,7 @@ impl ClosePotV1 {
         &self,
         remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(2 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(3 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.pot, false,
         ));
@@ -33,6 +35,17 @@ impl ClosePotV1 {
             self.game_authority,
             true,
         ));
+        if let Some(pot_token_account) = self.pot_token_account {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                pot_token_account,
+                false,
+            ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::BGL_GAME_POT_ID,
+                false,
+            ));
+        }
         accounts.extend_from_slice(remaining_accounts);
         let data = ClosePotV1InstructionData::new().try_to_vec().unwrap();
 
@@ -61,10 +74,12 @@ impl ClosePotV1InstructionData {
 ///
 ///   0. `[writable]` pot
 ///   1. `[writable, signer]` game_authority
+///   2. `[optional]` pot_token_account
 #[derive(Default)]
 pub struct ClosePotV1Builder {
     pot: Option<solana_program::pubkey::Pubkey>,
     game_authority: Option<solana_program::pubkey::Pubkey>,
+    pot_token_account: Option<solana_program::pubkey::Pubkey>,
     __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
@@ -82,6 +97,16 @@ impl ClosePotV1Builder {
     #[inline(always)]
     pub fn game_authority(&mut self, game_authority: solana_program::pubkey::Pubkey) -> &mut Self {
         self.game_authority = Some(game_authority);
+        self
+    }
+    /// `[optional account]`
+    /// The destination token account
+    #[inline(always)]
+    pub fn pot_token_account(
+        &mut self,
+        pot_token_account: Option<solana_program::pubkey::Pubkey>,
+    ) -> &mut Self {
+        self.pot_token_account = pot_token_account;
         self
     }
     /// Add an aditional account to the instruction.
@@ -107,6 +132,7 @@ impl ClosePotV1Builder {
         let accounts = ClosePotV1 {
             pot: self.pot.expect("pot is not set"),
             game_authority: self.game_authority.expect("game_authority is not set"),
+            pot_token_account: self.pot_token_account,
         };
 
         accounts.instruction_with_remaining_accounts(&self.__remaining_accounts)
@@ -119,6 +145,8 @@ pub struct ClosePotV1CpiAccounts<'a, 'b> {
     pub pot: &'b solana_program::account_info::AccountInfo<'a>,
     /// The authority of the game pot
     pub game_authority: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The destination token account
+    pub pot_token_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `close_pot_v1` CPI instruction.
@@ -129,6 +157,8 @@ pub struct ClosePotV1Cpi<'a, 'b> {
     pub pot: &'b solana_program::account_info::AccountInfo<'a>,
     /// The authority of the game pot
     pub game_authority: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The destination token account
+    pub pot_token_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
 impl<'a, 'b> ClosePotV1Cpi<'a, 'b> {
@@ -140,6 +170,7 @@ impl<'a, 'b> ClosePotV1Cpi<'a, 'b> {
             __program: program,
             pot: accounts.pot,
             game_authority: accounts.game_authority,
+            pot_token_account: accounts.pot_token_account,
         }
     }
     #[inline(always)]
@@ -175,7 +206,7 @@ impl<'a, 'b> ClosePotV1Cpi<'a, 'b> {
             bool,
         )],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(2 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(3 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.pot.key,
             false,
@@ -184,6 +215,17 @@ impl<'a, 'b> ClosePotV1Cpi<'a, 'b> {
             *self.game_authority.key,
             true,
         ));
+        if let Some(pot_token_account) = self.pot_token_account {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                *pot_token_account.key,
+                false,
+            ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::BGL_GAME_POT_ID,
+                false,
+            ));
+        }
         remaining_accounts.iter().for_each(|remaining_account| {
             accounts.push(solana_program::instruction::AccountMeta {
                 pubkey: *remaining_account.0.key,
@@ -198,10 +240,13 @@ impl<'a, 'b> ClosePotV1Cpi<'a, 'b> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(2 + 1 + remaining_accounts.len());
+        let mut account_infos = Vec::with_capacity(3 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.pot.clone());
         account_infos.push(self.game_authority.clone());
+        if let Some(pot_token_account) = self.pot_token_account {
+            account_infos.push(pot_token_account.clone());
+        }
         remaining_accounts
             .iter()
             .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
@@ -220,6 +265,7 @@ impl<'a, 'b> ClosePotV1Cpi<'a, 'b> {
 ///
 ///   0. `[writable]` pot
 ///   1. `[writable, signer]` game_authority
+///   2. `[optional]` pot_token_account
 pub struct ClosePotV1CpiBuilder<'a, 'b> {
     instruction: Box<ClosePotV1CpiBuilderInstruction<'a, 'b>>,
 }
@@ -230,6 +276,7 @@ impl<'a, 'b> ClosePotV1CpiBuilder<'a, 'b> {
             __program: program,
             pot: None,
             game_authority: None,
+            pot_token_account: None,
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
@@ -247,6 +294,16 @@ impl<'a, 'b> ClosePotV1CpiBuilder<'a, 'b> {
         game_authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.game_authority = Some(game_authority);
+        self
+    }
+    /// `[optional account]`
+    /// The destination token account
+    #[inline(always)]
+    pub fn pot_token_account(
+        &mut self,
+        pot_token_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    ) -> &mut Self {
+        self.instruction.pot_token_account = pot_token_account;
         self
     }
     /// Add an additional account to the instruction.
@@ -299,6 +356,8 @@ impl<'a, 'b> ClosePotV1CpiBuilder<'a, 'b> {
                 .instruction
                 .game_authority
                 .expect("game_authority is not set"),
+
+            pot_token_account: self.instruction.pot_token_account,
         };
         instruction.invoke_signed_with_remaining_accounts(
             signers_seeds,
@@ -311,6 +370,7 @@ struct ClosePotV1CpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_program::account_info::AccountInfo<'a>,
     pot: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     game_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    pot_token_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(
         &'b solana_program::account_info::AccountInfo<'a>,

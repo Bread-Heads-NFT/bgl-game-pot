@@ -17,6 +17,7 @@ pub enum BglGamePotInstruction {
     /// Close a game pot.
     #[account(0, writable, name="pot", desc = "The address of the game pot")]
     #[account(1, writable, signer, name="game_authority", desc = "The authority of the game pot")]
+    #[account(2, optional, name="pot_token_account", desc = "The destination token account")]
     ClosePotV1,
 
     /// Pop a participant from the allowlist.

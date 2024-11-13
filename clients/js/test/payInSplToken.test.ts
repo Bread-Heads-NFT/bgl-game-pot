@@ -40,14 +40,13 @@ test('it can pay in an SPL Token to a pot', async (t) => {
     header: {
       executable: false,
       owner: BGL_GAME_POT_PROGRAM_ID,
-      lamports: await umi.rpc.getRent(87),
+      lamports: await umi.rpc.getRent(79),
     },
     key: Key.GamePot,
     authority: umi.identity.publicKey,
     tokenMint: tokenMint.publicKey,
     bump: gamePotPda[1],
     paymentAmount: 100n,
-    balance: 0n,
     feePercentage: 0,
     allowlist: []
   });
@@ -65,14 +64,13 @@ test('it can pay in an SPL Token to a pot', async (t) => {
     header: {
       executable: false,
       owner: BGL_GAME_POT_PROGRAM_ID,
-      lamports: await umi.rpc.getRent(87 + 32),
+      lamports: await umi.rpc.getRent(79 + 32),
     },
     key: Key.GamePot,
     authority: umi.identity.publicKey,
     tokenMint: tokenMint.publicKey,
     bump: gamePotPda[1],
     paymentAmount: 100n,
-    balance: 100n,
     feePercentage: 0,
     allowlist: [participant.publicKey]
   });

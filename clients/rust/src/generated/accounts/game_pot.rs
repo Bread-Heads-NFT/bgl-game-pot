@@ -26,7 +26,6 @@ pub struct GamePot {
     pub token_mint: Pubkey,
     pub bump: u8,
     pub payment_amount: u64,
-    pub balance: u64,
     pub fee_percentage: u8,
     pub allowlist: Vec<Pubkey>,
 }

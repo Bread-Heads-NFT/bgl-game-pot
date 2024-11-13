@@ -69,6 +69,15 @@
           "docs": [
             "The authority of the game pot"
           ]
+        },
+        {
+          "name": "potTokenAccount",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true,
+          "docs": [
+            "The destination token account"
+          ]
         }
       ],
       "args": [],
@@ -389,10 +398,6 @@
             "type": "u64"
           },
           {
-            "name": "balance",
-            "type": "u64"
-          },
-          {
             "name": "feePercentage",
             "type": "u8"
           },
@@ -508,6 +513,16 @@
       "code": 13,
       "name": "InvalidPaymentType",
       "msg": "Invalid Payment Type"
+    },
+    {
+      "code": 14,
+      "name": "PotTokenAccountNotFound",
+      "msg": "Pot Token Account Not Found"
+    },
+    {
+      "code": 15,
+      "name": "NumericalOverflow",
+      "msg": "Numerical Overflow"
     }
   ],
   "metadata": {

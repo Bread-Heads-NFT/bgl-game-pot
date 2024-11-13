@@ -52,6 +52,12 @@ pub enum BglGamePotError {
     /// 13 (0xD) - Invalid Payment Type
     #[error("Invalid Payment Type")]
     InvalidPaymentType,
+    /// 14 (0xE) - Pot Token Account Not Found
+    #[error("Pot Token Account Not Found")]
+    PotTokenAccountNotFound,
+    /// 15 (0xF) - Numerical Overflow
+    #[error("Numerical Overflow")]
+    NumericalOverflow,
 }
 
 impl solana_program::program_error::PrintProgramError for BglGamePotError {

@@ -1,5 +1,9 @@
 use borsh::BorshDeserialize;
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult};
+use solana_program::{
+    account_info::AccountInfo, entrypoint::ProgramResult, program_pack::Pack, rent::Rent,
+    sysvar::Sysvar,
+};
+use spl_token::state::Account;
 
 use crate::{
     error::BglGamePotError,
@@ -16,8 +20,26 @@ pub fn close_pot<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
 
     // Guards.
     // Validate Pot Account.
-    if game_pot.balance > 0 || !game_pot.allowlist.is_empty() {
+    if !game_pot.allowlist.is_empty() {
         return Err(BglGamePotError::PotNotEmpty.into());
+    }
+
+    // Validate pot balance.
+    if game_pot.token_mint == spl_token::native_mint::ID {
+        let lamports = ctx.accounts.pot.lamports();
+
+        if lamports > Rent::get()?.minimum_balance(ctx.accounts.pot.data_len()) {
+            return Err(BglGamePotError::PotNotEmpty.into());
+        }
+    } else {
+        let Some(token_account) = ctx.accounts.pot_token_account else {
+            return Err(BglGamePotError::PotTokenAccountNotFound.into());
+        };
+
+        let token_account_info = Account::unpack(&token_account.data.borrow())?;
+        if token_account_info.amount > 0 {
+            return Err(BglGamePotError::PotNotEmpty.into());
+        }
     }
 
     assert_derivation_with_bump(

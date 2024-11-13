@@ -148,7 +148,6 @@ pub fn pay_in_spl_token<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
         ],
     )?;
 
-    game_pot.balance += game_pot.payment_amount;
     game_pot.allowlist.push(*ctx.accounts.participant.key);
 
     game_pot.serialize(&mut *ctx.accounts.pot.data.borrow_mut())?;

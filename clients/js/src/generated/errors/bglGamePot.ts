@@ -206,6 +206,32 @@ export class InvalidPaymentTypeError extends ProgramError {
 codeToErrorMap.set(0xd, InvalidPaymentTypeError);
 nameToErrorMap.set('InvalidPaymentType', InvalidPaymentTypeError);
 
+/** PotTokenAccountNotFound: Pot Token Account Not Found */
+export class PotTokenAccountNotFoundError extends ProgramError {
+  override readonly name: string = 'PotTokenAccountNotFound';
+
+  readonly code: number = 0xe; // 14
+
+  constructor(program: Program, cause?: Error) {
+    super('Pot Token Account Not Found', program, cause);
+  }
+}
+codeToErrorMap.set(0xe, PotTokenAccountNotFoundError);
+nameToErrorMap.set('PotTokenAccountNotFound', PotTokenAccountNotFoundError);
+
+/** NumericalOverflow: Numerical Overflow */
+export class NumericalOverflowError extends ProgramError {
+  override readonly name: string = 'NumericalOverflow';
+
+  readonly code: number = 0xf; // 15
+
+  constructor(program: Program, cause?: Error) {
+    super('Numerical Overflow', program, cause);
+  }
+}
+codeToErrorMap.set(0xf, NumericalOverflowError);
+nameToErrorMap.set('NumericalOverflow', NumericalOverflowError);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

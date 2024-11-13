@@ -32,6 +32,8 @@ export type ClosePotV1InstructionAccounts = {
   pot: PublicKey | Pda;
   /** The authority of the game pot */
   gameAuthority: Signer;
+  /** The destination token account */
+  potTokenAccount?: PublicKey | Pda;
 };
 
 // Data.
@@ -73,6 +75,11 @@ export function closePotV1(
       index: 1,
       isWritable: true as boolean,
       value: input.gameAuthority ?? null,
+    },
+    potTokenAccount: {
+      index: 2,
+      isWritable: false as boolean,
+      value: input.potTokenAccount ?? null,
     },
   } satisfies ResolvedAccountsWithIndices;
 

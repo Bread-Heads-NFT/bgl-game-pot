@@ -63,7 +63,6 @@ pub fn create_pot<'a>(accounts: &'a [AccountInfo<'a>], args: CreatePotV1Args) ->
         token_mint: *ctx.accounts.token_mint.key,
         bump,
         payment_amount: args.payment_amount,
-        balance: 0,
         fee_percentage: args.fee_percentage,
         allowlist: vec![],
     };

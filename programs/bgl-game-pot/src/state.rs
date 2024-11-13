@@ -18,11 +18,10 @@ pub struct GamePot {
     pub token_mint: Pubkey,     // 32
     pub bump: u8,               // 1
     pub payment_amount: u64,    // 8
-    pub balance: u64,           // 8
     pub fee_percentage: u8,     // 1
     pub allowlist: Vec<Pubkey>, // 4 + (32 * n)
 }
 
 impl GamePot {
-    pub const BASE_LEN: usize = 1 + 32 + 32 + 1 + 8 + 8 + 1 + 4;
+    pub const BASE_LEN: usize = 1 + 32 + 32 + 1 + 8 + 1 + 4;
 }

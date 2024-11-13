@@ -37,14 +37,13 @@ test('it can create a new pot', async (t) => {
     header: {
       executable: false,
       owner: BGL_GAME_POT_PROGRAM_ID,
-      lamports: await umi.rpc.getRent(87),
+      lamports: await umi.rpc.getRent(79),
     },
     key: Key.GamePot,
     authority: umi.identity.publicKey,
     tokenMint: tokenMint.publicKey,
     bump: gamePotPda[1],
     paymentAmount: 100n,
-    balance: 0n,
     feePercentage: 0,
     allowlist: []
   });

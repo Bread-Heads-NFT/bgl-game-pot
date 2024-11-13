@@ -1,5 +1,8 @@
 use borsh::{BorshDeserialize, BorshSerialize};
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, system_program};
+use solana_program::{
+    account_info::AccountInfo, entrypoint::ProgramResult, rent::Rent, system_program,
+    sysvar::Sysvar,
+};
 
 use crate::{
     error::BglGamePotError,
@@ -43,8 +46,14 @@ pub fn pay_out_sol<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
         return Err(BglGamePotError::InvalidSystemProgram.into());
     }
 
-    let fee_amount = (game_pot.balance * game_pot.fee_percentage as u64) / 100u64;
-    let winner_amount = game_pot.balance - fee_amount;
+    let balance = ctx
+        .accounts
+        .pot
+        .lamports()
+        .checked_sub(Rent::get()?.minimum_balance(ctx.accounts.pot.data_len()))
+        .ok_or(BglGamePotError::NumericalOverflow)?;
+    let fee_amount = (balance * game_pot.fee_percentage as u64) / 100u64;
+    let winner_amount = balance - fee_amount;
 
     // Transfer the fee to the game authority.
     **ctx.accounts.pot.try_borrow_mut_lamports()? -= fee_amount;
@@ -53,7 +62,6 @@ pub fn pay_out_sol<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
     **ctx.accounts.pot.try_borrow_mut_lamports()? -= winner_amount;
     **ctx.accounts.winner.try_borrow_mut_lamports()? += winner_amount;
 
-    game_pot.balance = 0;
     game_pot.allowlist = vec![];
 
     resize_with_offset(

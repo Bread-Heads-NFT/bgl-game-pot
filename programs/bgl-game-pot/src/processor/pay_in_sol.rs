@@ -31,6 +31,10 @@ pub fn pay_in_sol<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
         BglGamePotError::InvalidDerivationForPotAccount,
     )?;
 
+    if game_pot.token_mint != spl_token::native_mint::ID {
+        return Err(BglGamePotError::InvalidTokenMint.into());
+    }
+
     // Validate Participant.
     assert_signer(ctx.accounts.participant)?;
 
@@ -56,7 +60,6 @@ pub fn pay_in_sol<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
         &[ctx.accounts.participant.clone(), ctx.accounts.pot.clone()],
     )?;
 
-    game_pot.balance += game_pot.payment_amount;
     game_pot.allowlist.push(*ctx.accounts.participant.key);
 
     game_pot.serialize(&mut *ctx.accounts.pot.data.borrow_mut())?;

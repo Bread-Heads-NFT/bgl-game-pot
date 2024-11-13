@@ -63,6 +63,14 @@ pub enum BglGamePotError {
     /// 13 - Invalid Payment Type
     #[error("Invalid Payment Type")]
     InvalidPaymentType,
+
+    /// 14 - Pot Token Account Not Found
+    #[error("Pot Token Account Not Found")]
+    PotTokenAccountNotFound,
+
+    /// 15 - Numerical Overflow
+    #[error("Numerical Overflow")]
+    NumericalOverflow,
 }
 
 impl PrintProgramError for BglGamePotError {
