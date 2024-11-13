@@ -1,6 +1,6 @@
 {
   "name": "@breadheads/bgl-game-pot",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A way to accept and pay out tokens for participation in games.",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
